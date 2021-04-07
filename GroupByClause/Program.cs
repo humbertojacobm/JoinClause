@@ -15,6 +15,34 @@ namespace GroupByClause
             public List<int> Scores;
         }
 
+        
+        public class Student2
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Year { get; set; }            
+        }
+
+        public static List<Student2> GetStudents2(){
+            List<Student2> students = new List<Student2>
+            {
+                new Student2 {LastName="Adams", FirstName="Terry", Year="SecondYear"},
+                new Student2 {LastName="Garcia", FirstName="Hugo", Year="SecondYear"},
+                new Student2 {LastName="Omelchenko", FirstName="Svetlana", Year="SecondYear"},
+                new Student2 {LastName="Fakhouri", FirstName="Fadi", Year="ThirdYear"},
+                new Student2 {LastName="Garcia", FirstName="Debra", Year="ThirdYear"},
+                new Student2 {LastName="Tucker", FirstName="Lance", Year="ThirdYear"},
+                new Student2 {LastName="Feng", FirstName="Hanying", Year="FirstYear"},
+                new Student2 {LastName="Mortensen", FirstName="Sven", Year="FirstYear"},
+                new Student2 {LastName="Tucker", FirstName="Michael", Year="FirstYear"},
+                new Student2 {LastName="Garcia", FirstName="Cesar", Year="FourthYear"},
+                new Student2 {LastName="O'Donnell", FirstName="Claire", Year="FourthYear"},
+                new Student2 {LastName="Zabokritski", FirstName="Eugene", Year="FourthYear"},
+            };
+
+            return students;
+        }
+
         public static List<Student> GetStudents()
         {
             // Use a collection initializer to create the data source. Note that each element
@@ -37,6 +65,7 @@ namespace GroupByClause
               app.GroupByNumericRange();
               app.GroupByChar();
               app.GroupByCharAdvanced();
+              app.QueryNestedGroups();
         }
         void GroupByBool()
         {
@@ -141,6 +170,38 @@ namespace GroupByClause
             // Keep the console window open in debug mode
             Console.WriteLine("Press any key to exit.");
                                     
+        }
+        void QueryNestedGroups()
+        {
+            var students = GetStudents2();
+
+            var queryNestedGroups = 
+                from student in students
+                group student by student.Year into newGroup1
+                from newGroup2 in
+                    (
+                        from student in newGroup1
+                        group student by student.LastName
+                    )
+                group newGroup2 by newGroup1.Key;
+                ;
+            
+            Console.WriteLine("");
+            Console.WriteLine("QueryNestedGroups");
+
+            foreach (var outerGroup in queryNestedGroups)
+            {
+                Console.WriteLine($"DataClass.Student Level = {outerGroup.Key}");
+                foreach (var innerGroup in outerGroup)
+                {
+                    Console.WriteLine($"\tNames that begin with: {innerGroup.Key}");
+                    foreach (var innerGroupElement in innerGroup)
+                    {
+                        Console.WriteLine($"\t\t{innerGroupElement.LastName} {innerGroupElement.FirstName}");
+                    }
+                }
+            }
+
         }
     }
 }
